@@ -35,7 +35,7 @@ struct Key {
 struct JsonKey {
     key: u8,
     name: String,
-    file_path: String,
+    file_name: String,
 }
 
 const STATES: &'static [&str] = &[
@@ -238,16 +238,19 @@ fn analyze(args: &Args) {
             &start_transition_probabilities,
             &transition_probabilities,
             &emission_probabilities);
+        let file_name: String = file.file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or_default().to_string();
         result.push(JsonKey { 
             key: key,
             name: STATES[key as usize].to_string(),
-            file_path: file.to_string_lossy().to_string()
+            file_name: file_name
         });
         pb.inc(1);
     }
     let out = Path::new(&args.output_file);
     write_to_out_file(out, result);
-    println!("Done see {} for output",  &out.to_string_lossy());
+    println!("Done see {} for the output.",  &out.to_string_lossy());
 }
 
 fn get_files(args: &Args) -> Vec<PathBuf> {
@@ -262,7 +265,12 @@ fn get_files(args: &Args) -> Vec<PathBuf> {
             }
         }
     } else {
-        files.push(Path::new(&args.input_path).to_path_buf());
+        let file = Path::new(&args.input_path).to_path_buf();
+        if file.is_dir() {
+            println!("The input path is a directory not a file. Add -r to use folder as input");
+            std::process::exit(1);
+        } 
+        files.push(file);
     }
     files
 }
@@ -277,8 +285,20 @@ fn write_to_out_file(file: &Path, res: Vec<JsonKey>) {
 }
 
 fn get_normalized_notes(file: &Path) -> Vec<u8>{
-    let bytes = fs::read(file).unwrap();
-    let mut smf = Smf::parse(&bytes).unwrap();
+    let bytes = match fs::read(file) {
+        Ok(bytes) => bytes,
+        Err(_) => {
+            println!("Failed to open file: {:?}", file);
+            std::process::exit(2);
+        }
+    };
+    let mut smf = match Smf::parse(&bytes) {
+        Ok(smf) => smf,
+        Err(_) => {
+            println!("Failed to parse file: {:?}", file);
+            std::process::exit(3);
+        }
+    };
     let track = smf.tracks.remove(1);
     let mut notes: Vec<u8> =  Vec::new();
     for event in track {
