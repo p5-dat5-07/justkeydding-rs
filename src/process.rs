@@ -10,7 +10,7 @@ use crate::analyze::*;
 use crate::args::*;
 use crate::consts::*;
 use crate::transitions::get_transition;
-use crate::profiles::get_profile;
+use crate::profiles::{get_profile_major, get_profile_minor};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct JsonKey {
@@ -21,8 +21,8 @@ struct JsonKey {
 
 pub fn process(args: &Args) {
     let transitions: Vec<f32> = Vec::from(get_transition(args.transition_profile));
-    let minor_profile: VecDeque<f32> = VecDeque::from(get_profile(args.minor_profile, args));
-    let major_profile: VecDeque<f32> = VecDeque::from(get_profile(args.major_profile, args));
+    let minor_profile: VecDeque<f32> = VecDeque::from(get_profile_minor(args.minor_profile, args));
+    let major_profile: VecDeque<f32> = VecDeque::from(get_profile_major(args.major_profile, args));
 
     let mut analyzer: Analyzer = Analyzer::init(&transitions, &major_profile, &minor_profile);
 

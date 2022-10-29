@@ -15,13 +15,13 @@ pub struct Args {
 
     /// Major profile
     #[arg(value_enum)]
-    #[arg(short='a', long, default_value_t = Profile::SappMajor)]
-    pub major_profile: Profile,
+    #[arg(short='a', long, default_value_t = ProfileMajor::Sapp)]
+    pub major_profile: ProfileMajor,
 
     /// Minor profile
     #[arg(value_enum)]
-    #[arg(short='i', long, default_value_t = Profile::SappMinor)]
-    pub minor_profile: Profile,
+    #[arg(short='i', long, default_value_t = ProfileMinor::Sapp)]
+    pub minor_profile: ProfileMinor,
 
     /// Transition profile
     #[arg(value_enum)]

@@ -4,21 +4,26 @@ use crate::args::Args;
 
 #[repr(usize)]
 #[derive(Debug, Clone, Copy, ValueEnum)]
-pub enum Profile {
-    KrumhanslKesslerMajor = 0,
-    AardenEssenMajor,
-    SappMajor,
-    BellmanBudgeMajor,
-    TemperleyMajor,
-    KrumhanslKesslerMinor,
-    AardenEssenMinor,
-    SappMinor,
-    BellmanBudgeMinor,
-    TemperleyMinor
+pub enum ProfileMajor {
+    KrumhanslKessler = 0,
+    AardenEssen,
+    Sapp,
+    BellmanBudge,
+    Temperley,
 }
 
-fn to_normalized(profile: Profile) -> usize {
-    (Profile::TemperleyMinor as usize)+ profile as usize
+#[repr(usize)]
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum ProfileMinor {
+    KrumhanslKessler = (ProfileMajor::Temperley as usize) + 1,
+    AardenEssen,
+    Sapp,
+    BellmanBudge,
+    Temperley
+}
+
+fn to_normalized(profile: usize) -> usize {
+    (ProfileMinor::Temperley as usize) + profile
 }
 
 const PROFILES: [[f32; 12]; 20] = [
@@ -99,19 +104,16 @@ const PROFILES: [[f32; 12]; 20] = [
     ],
 ];
 
-pub fn get_profile(profile: Profile, args: &Args) -> [f32; 12] {
-    if args.profile_normalized {
-        return PROFILES[to_normalized(profile)];
+pub fn get_profile_minor(profile: ProfileMinor, args: &Args) -> [f32; 12] {
+    if args.minor_profile_normalized {
+        return PROFILES[to_normalized(profile as usize)];
     }
+    return PROFILES[profile as usize];
+}
 
-    if profile as usize <= Profile::TemperleyMajor as usize {
-        if args.major_profile_normalized {
-            return PROFILES[to_normalized(profile)];
-        }
-    } else {
-        if args.minor_profile_normalized {
-            return PROFILES[to_normalized(profile)];
-        }
+pub fn get_profile_major(profile: ProfileMajor, args: &Args) -> [f32; 12] {
+    if args.major_profile_normalized {
+        return PROFILES[to_normalized(profile as usize)];
     }
     return PROFILES[profile as usize];
 }
