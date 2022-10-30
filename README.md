@@ -1,5 +1,5 @@
 # justkeydding-rs
-A re-implemetation of [justkeydding](https://github.com/napulen/justkeydding) specifcally the [symbolic detecting](https://github.com/napulen/keytracker) optimizing the algorithm. Reducing the time to find the key drastically. This can be seen with the maestro dataset (1282 midi files) which is estimated to take more than 4 hours was reduced to 47 seconds.
+A re-implemetation of [justkeydding](https://github.com/napulen/justkeydding) specifcally the [symbolic detecting](https://github.com/napulen/keytracker) optimizing the algorithm. Reducing the time to find the key drastically. This can be seen with the maestro dataset (1282 midi files) which is estimated to take more than 4 hours was reduced to around 25 seconds on a ryzen 7 1700x.
 
 
 ```

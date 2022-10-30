@@ -1,4 +1,5 @@
-pub const STATES: &'static [&str] = &[
+// Table for converting usize key to &str key
+pub const KEY_USIZE_TO_STR: &'static [&str] = &[
     "C",
     "Db",
     "D",

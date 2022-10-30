@@ -41,7 +41,7 @@ pub fn process(args: &Args) {
             .unwrap_or_default().to_string();
         result.push(JsonKey { 
             key: key,
-            name: STATES[key as usize].to_string(),
+            name: KEY_USIZE_TO_STR[key as usize].to_string(),
             file_name: file_name
         });
         pb.inc(1);
