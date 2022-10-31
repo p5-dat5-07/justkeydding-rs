@@ -29,15 +29,15 @@ pub struct Args {
     pub transition_profile: Transition,
 
     /// Major profile normalized
-    #[arg(long, default_value_t = false)]
+    #[arg(long, default_value_t = true)]
     pub major_profile_normalized: bool,
 
     /// Major profile normalized
-    #[arg(long, default_value_t = false)]
+    #[arg(long, default_value_t = true)]
     pub minor_profile_normalized: bool,
 
     // Profile normalized
-    #[arg(short='n', long, default_value_t = false)]
+    #[arg(short='n', long, default_value_t = true)]
     pub profile_normalized: bool,
 
     /// Recursively travels through the input path finding midi files.

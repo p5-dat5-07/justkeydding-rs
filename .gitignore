@@ -1,5 +1,6 @@
 /target
 /q-maestro-v2.0.0
-*.json
+/midi
+/*.json
 *.mid*
 *.svg

@@ -1,5 +1,5 @@
 // Table for converting usize key to &str key
-pub const KEY_USIZE_TO_STR: &'static [&str] = &[
+pub const STATES: &'static [&str] = &[
     "C",
     "Db",
     "D",
@@ -26,4 +26,4 @@ pub const KEY_USIZE_TO_STR: &'static [&str] = &[
     "b"
 ];
 
-pub const START_STATE: [f32; 24] = [0.04166666666; 24];
+pub const START_STATE: [f64; 24] = [1.0/24.0; 24];

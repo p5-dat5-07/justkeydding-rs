@@ -1,57 +1,62 @@
 use serde::{Serialize, Deserialize};
-use std::collections::VecDeque;
 use std::path::{PathBuf, Path};
 use midly::{Smf, TrackEventKind, MidiMessage};
 use std::fs;
 use glob::glob;
 use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::analyze::*;
 use crate::args::*;
 use crate::consts::*;
-use crate::transitions::get_transition;
+use crate::transitions::*;
 use crate::profiles::{get_profile_major, get_profile_minor};
+use crate::analyze::Analyzer;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct JsonKey {
-    key: u8,
-    name: String,
-    file_name: String,
+pub struct JsonKey {
+    pub key: u8,
+    pub name: String,
+    pub file_name: String,
 }
 
-pub fn process(args: &Args) {
-    let transitions: Vec<f32> = Vec::from(get_transition(args.transition_profile));
-    let minor_profile: VecDeque<f32> = VecDeque::from(get_profile_minor(args.minor_profile, args));
-    let major_profile: VecDeque<f32> = VecDeque::from(get_profile_major(args.major_profile, args));
+pub fn process(args: &Args) -> Vec<JsonKey> {
+    let transitions: Vec<f64> = Vec::from(get_transition(args.transition_profile));
+    let null_transitions: Vec<f64> = Vec::from(get_transition(Transition::KeyTransitionsNull));
+    let minor_profile: Vec<f64> = Vec::from(get_profile_minor(args.minor_profile, args));
+    let major_profile: Vec<f64> = Vec::from(get_profile_major(args.major_profile, args));
 
-    let mut analyzer: Analyzer = Analyzer::init(&transitions, &major_profile, &minor_profile);
-
+    let mut analyzer: Analyzer = Analyzer::init(&transitions, &null_transitions, &major_profile, &minor_profile);
     let mut result: Vec<JsonKey> = Vec::new();
     let files = get_files(args);
-    let pb = ProgressBar::new(files.len().try_into().unwrap());
+    /*let pb = ProgressBar::new(files.len().try_into().unwrap());
     let sty = ProgressStyle::with_template(
         "[{elapsed_precise}] [{wide_bar}] {pos:>7}/{len:7}",
     ).unwrap().progress_chars("=>-");
-    pb.set_style(sty);
-    for file in files {
-        let notes = get_normalized_notes(&file); 
-        let key = analyzer.analyze(&notes);
-        let file_name: String = file.file_name()
-            .and_then(|name| name.to_str())
-            .unwrap_or_default().to_string();
-        result.push(JsonKey { 
-            key: key,
-            name: KEY_USIZE_TO_STR[key as usize].to_string(),
-            file_name: file_name
-        });
-        pb.inc(1);
+    pb.set_style(sty);*/
+
+    for i in 0..files.len() {
+        let notes = get_normalized_notes(&files[i]); 
+        if notes.len() > 0 {
+            let key = analyzer.analyze(&notes);
+            let file_name: String = files[i].file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or_default().to_string();
+            
+            result.push(JsonKey { 
+                key: key,
+                name: STATES[key as usize].to_string(),
+                file_name: file_name
+            });
+        }
+        //pb.inc(1);
     }
-    let out = Path::new(&args.output_file);
-    write_to_out_file(out, result);
-    println!("Done see {} for the output.",  &out.to_string_lossy());
+    //println!("Result: Fails {} Ok {} Total {}", fail, ok, test_data.len());
+    //let out = Path::new(&args.output_file);
+    //write_to_out_file(out, result);
+    //println!("Done see {} for the output.",  &out.to_string_lossy());
+    result
 }
 
-fn get_files(args: &Args) -> Vec<PathBuf> {
+pub fn get_files(args: &Args) -> Vec<PathBuf> {
     let mut files: Vec<PathBuf> = Vec::new();
     if args.recursive {
         let mut glob_str = args.input_path.clone();
@@ -82,7 +87,7 @@ fn write_to_out_file(file: &Path, res: Vec<JsonKey>) {
     };
 }
 
-fn get_normalized_notes(file: &Path) -> Vec<u8>{
+pub fn get_normalized_notes(file: &Path) -> Vec<u8>{
     let bytes = match fs::read(file) {
         Ok(bytes) => bytes,
         Err(e) => {

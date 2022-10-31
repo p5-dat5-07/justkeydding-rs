@@ -10,7 +10,7 @@ pub enum Transition {
     NeighbourLevel,
 }
 
-const TRANSITIONS: [[f32; 24]; 5] = [
+pub const TRANSITIONS: [[f64; 24]; 5] = [
     [ // key_transitions_linear
         9.0/132.0, 4.0/132.0, 6.0/132.0, 6.0/132.0, 5.0/132.0, 8.0/132.0,
         1.0/132.0, 8.0/132.0, 5.0/132.0, 6.0/132.0, 6.0/132.0, 4.0/132.0,
@@ -39,6 +39,6 @@ const TRANSITIONS: [[f32; 24]; 5] = [
     ],
 ];
 
-pub fn get_transition(transition: Transition) ->  [f32; 24] {
+pub fn get_transition(transition: Transition) ->  [f64; 24] {
     TRANSITIONS[transition as usize]
 }
